@@ -27,7 +27,7 @@ export default function CadastroEmbarcadorPage() {
     const result = await signUpShipper(formData);
 
     if (result?.errors) {
-      setErrors(result.errors as Record<string, string>);
+      setErrors(result.errors as unknown as Record<string, string>);
       setLoading(false);
     } else if (result?.error) {
       toast({ type: "error", title: result.error });

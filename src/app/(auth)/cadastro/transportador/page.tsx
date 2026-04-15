@@ -43,9 +43,9 @@ export default function CadastroTransportadorPage() {
     const result = await signUpCarrier(formData);
 
     if (result?.errors) {
-      setErrors(result.errors as Record<string, string>);
+      setErrors(result.errors as unknown as Record<string, string>);
       // Go back to the step with errors
-      const errorKeys = Object.keys(result.errors);
+      const errorKeys = Object.keys(result.errors as Record<string, string>);
       if (errorKeys.some((k) => ["email", "password", "cpf", "cnpj", "nome_completo", "razao_social"].includes(k))) setStep(0);
       else if (errorKeys.some((k) => k.startsWith("cnh"))) setStep(1);
       else if (errorKeys.some((k) => ["marca", "modelo", "ano", "placa", "renavam"].includes(k))) setStep(2);
