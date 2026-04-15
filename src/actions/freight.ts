@@ -147,25 +147,9 @@ export async function listFreights(filters?: {
     myApplications = apps || [];
   }
 
-  const freights = (data || []).map((f: {
-    id: string;
-    status: string;
-    natureza_carga: string;
-    especificacao: string;
-    volume_m3: number;
-    peso_kg: number;
-    valor_carga: number;
-    valor_frete: number;
-    retirada_cidade: string;
-    retirada_uf: string;
-    retirada_data: string;
-    entrega_cidade: string;
-    entrega_uf: string;
-    entrega_data: string;
-    observacoes: string | null;
-    published_at: string;
-    shipper_profiles: { razao_social: string; natureza_cargas: string } | null;
-  }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const freights = ((data || []) as any[]).map((f) => {
+    const sp = Array.isArray(f.shipper_profiles) ? f.shipper_profiles[0] : f.shipper_profiles;
     const myApp = myApplications.find((a) => a.freight_id === f.id);
     return {
       id: f.id,
@@ -185,8 +169,8 @@ export async function listFreights(filters?: {
       observacoes: f.observacoes,
       published_at: f.published_at,
       shipper: {
-        razao_social: f.shipper_profiles?.razao_social ?? "Embarcador",
-        natureza_cargas: f.shipper_profiles?.natureza_cargas ?? "",
+        razao_social: sp?.razao_social ?? "Embarcador",
+        natureza_cargas: sp?.natureza_cargas ?? "",
         cnpj: null,
         responsavel_nome: null,
         responsavel_cargo: null,
@@ -319,7 +303,9 @@ export async function getFreightDetail(freightId: string) {
     myApplication = myApp;
   }
 
-  const shipperData = freight.shipper_profiles as {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const _sp = freight.shipper_profiles as any;
+  const shipperData = (Array.isArray(_sp) ? _sp[0] : _sp) as {
     razao_social: string;
     cnpj: string;
     responsavel_nome: string;
