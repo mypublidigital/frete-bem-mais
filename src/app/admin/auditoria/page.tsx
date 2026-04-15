@@ -48,18 +48,10 @@ export default async function AdminAuditoriaPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100">
-            {(logs || []).map((log: {
-              id: string;
-              action: string;
-              entity_type: string;
-              entity_id: string;
-              old_status: string | null;
-              new_status: string | null;
-              reason: string | null;
-              actor_role: string;
-              created_at: string;
-              actor: { email: string } | null;
-            }) => (
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {((logs || []) as any[]).map((log) => {
+              const actor = Array.isArray(log.actor) ? log.actor[0] : log.actor;
+              return (
               <tr key={log.id} className="hover:bg-neutral-50 transition-colors">
                 <td className="px-4 py-3 text-neutral-500 whitespace-nowrap">
                   {new Date(log.created_at).toLocaleString("pt-BR", {
@@ -72,7 +64,7 @@ export default async function AdminAuditoriaPage() {
                 </td>
                 <td className="px-4 py-3">
                   <p className="text-xs text-neutral-500 truncate max-w-[140px]">
-                    {log.actor?.email || "–"}
+                    {actor?.email || "–"}
                   </p>
                   <span className={`inline-block text-xs px-1.5 py-0.5 rounded mt-0.5 ${ROLE_COLORS[log.actor_role] || "bg-neutral-100 text-neutral-600"}`}>
                     {log.actor_role}
@@ -102,7 +94,8 @@ export default async function AdminAuditoriaPage() {
                   <p className="truncate text-xs">{log.reason || "–"}</p>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         {(!logs || logs.length === 0) && (

@@ -46,8 +46,8 @@ export default function FreightDetailPage() {
     }
 
     setFreight(result.freight as FreightDetail);
-    setApplications(result.applications);
-    setMyApplication(result.myApplication);
+    setApplications(result.applications ?? null);
+    setMyApplication(result.myApplication ?? null);
 
     if (role === "carrier") {
       const { data: vList } = await supabase

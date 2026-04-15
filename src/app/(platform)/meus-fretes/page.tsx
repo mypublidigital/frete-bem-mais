@@ -142,7 +142,9 @@ async function CarrierApplicationsView({ userId }: { userId: string }) {
       ) : (
         <div className="grid gap-4">
           {apps.map((app) => {
-            const freight = app.freights as {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const _f = app.freights as any;
+            const freight = (Array.isArray(_f) ? _f[0] : _f) as {
               id: string; status: string; natureza_carga: string; valor_frete: number;
               retirada_cidade: string; retirada_uf: string; retirada_data: string;
               entrega_cidade: string; entrega_uf: string; entrega_data: string;

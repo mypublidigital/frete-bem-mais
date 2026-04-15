@@ -20,8 +20,10 @@ export default async function AdminFretesPage() {
     .order("created_at", { ascending: false })
     .limit(100);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const freightsList = (freights || []) as any[];
   const statusCounts: Record<string, number> = {};
-  (freights || []).forEach((f: { status: string }) => {
+  freightsList.forEach((f) => {
     statusCounts[f.status] = (statusCounts[f.status] || 0) + 1;
   });
 
@@ -56,18 +58,9 @@ export default async function AdminFretesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100">
-            {(freights || []).map((freight: {
-              id: string;
-              status: string;
-              natureza_carga: string;
-              valor_frete: number;
-              retirada_cidade: string;
-              retirada_uf: string;
-              retirada_data: string;
-              entrega_cidade: string;
-              entrega_uf: string;
-              shipper_profiles: { razao_social: string } | null;
-            }) => (
+            {freightsList.map((freight) => {
+              const sp = Array.isArray(freight.shipper_profiles) ? freight.shipper_profiles[0] : freight.shipper_profiles;
+              return (
               <tr key={freight.id} className="hover:bg-neutral-50 transition-colors">
                 <td className="px-4 py-3">
                   <span className="font-medium">
@@ -80,7 +73,7 @@ export default async function AdminFretesPage() {
                   <p className="text-xs text-neutral-400 mt-0.5">{freight.natureza_carga}</p>
                 </td>
                 <td className="px-4 py-3 text-neutral-600">
-                  {freight.shipper_profiles?.razao_social || "–"}
+                  {sp?.razao_social || "–"}
                 </td>
                 <td className="px-4 py-3">
                   <Badge className={FREIGHT_STATUS_COLORS[freight.status]}>
@@ -102,7 +95,8 @@ export default async function AdminFretesPage() {
                   </Link>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         {(!freights || freights.length === 0) && (

@@ -31,11 +31,13 @@ export default async function AdminPagamentosPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const totalVolume = (payments || []).reduce((sum: number, p: { status: string; amount_total: number }) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const paymentsList = (payments || []) as any[];
+  const totalVolume = paymentsList.reduce((sum, p) =>
     p.status === "succeeded" ? sum + p.amount_total : sum, 0);
-  const totalFees = (payments || []).reduce((sum: number, p: { status: string; platform_fee: number }) =>
+  const totalFees = paymentsList.reduce((sum, p) =>
     p.status === "succeeded" ? sum + p.platform_fee : sum, 0);
-  const pendingPayouts = (payments || []).filter((p: { status: string }) => p.status === "payout_triggered").length;
+  const pendingPayouts = paymentsList.filter((p) => p.status === "payout_triggered").length;
 
   return (
     <div className="space-y-6">
@@ -84,26 +86,17 @@ export default async function AdminPagamentosPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100">
-            {(payments || []).map((payment: {
-              id: string;
-              status: string;
-              amount_total: number;
-              platform_fee: number;
-              carrier_payout_amount: number;
-              created_at: string;
-              stripe_payment_intent_id: string | null;
-              freights: { id: string; natureza_carga: string; retirada_cidade: string; retirada_uf: string; entrega_cidade: string; entrega_uf: string } | null;
-              shipper: { email: string } | null;
-              carrier: { email: string } | null;
-            }) => (
+            {paymentsList.map((payment) => {
+              const fr = Array.isArray(payment.freights) ? payment.freights[0] : payment.freights;
+              return (
               <tr key={payment.id} className="hover:bg-neutral-50 transition-colors">
                 <td className="px-4 py-3">
                   <p className="font-medium">
-                    {payment.freights?.retirada_cidade}/{payment.freights?.retirada_uf}
+                    {fr?.retirada_cidade}/{fr?.retirada_uf}
                     <span className="text-neutral-400 mx-1">→</span>
-                    {payment.freights?.entrega_cidade}/{payment.freights?.entrega_uf}
+                    {fr?.entrega_cidade}/{fr?.entrega_uf}
                   </p>
-                  <p className="text-xs text-neutral-400">{payment.freights?.natureza_carga}</p>
+                  <p className="text-xs text-neutral-400">{fr?.natureza_carga}</p>
                 </td>
                 <td className="px-4 py-3">
                   <Badge className={PAYMENT_STATUS_COLORS[payment.status] || "bg-neutral-100 text-neutral-600"}>
@@ -123,7 +116,8 @@ export default async function AdminPagamentosPage() {
                   {new Date(payment.created_at).toLocaleDateString("pt-BR")}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         {(!payments || payments.length === 0) && (
